@@ -8,6 +8,7 @@ import jwt
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import os
+from currency_converter import CurrencyConverter
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'orenonawaerenjaeger'
@@ -18,6 +19,7 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = 'emmanuelhudson355@gmail.com'
 app.config['MAIL_PASSWORD'] = 'pdlw wmnu leov yqyv'
 mail = Mail(app)
+css = CurrencyConverter()
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -30,6 +32,85 @@ c.execute('CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMEN
 conn.commit()
 c.execute('CREATE TABLE IF NOT EXISTS shoppingcarts (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, products TEXT)')
 conn.close()
+
+import requests
+
+
+@app.route('/checkout/<email>', methods=['POST', 'GET'])
+def checkout(email):
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('SELECT products FROM shoppingcarts WHERE email = ?', (email,))
+        cs = c.fetchone()
+
+        if cs is not None:
+            product_list = cs[0].split(', ')
+            print(product_list)
+
+            total_usd_price = 0  # Initialize the total price in USD
+            converted_products = []  # Create a list to store the converted products
+
+            for product_id in product_list:
+                # Fetch the product information from the database
+                c.execute('SELECT * FROM posts WHERE id = ?', (product_id,))
+                product = c.fetchone()
+
+                if product:
+                    # Extract product information from the database
+                    id, email, img, scorelvl, caption, colors, size, category, stock_quantity, timestamp, price, currency = product
+                    print('Product', product)
+
+                    if currency == 'USD':
+                        # If the currency is already USD, no conversion needed
+                        mPrice = price
+                    else:
+                        exchange_api_url = f"http://192.168.1.188:3000/NGNTOUSD"
+                        response = requests.get(exchange_api_url)
+
+                        if response.status_code == 200:
+                            data = response.json()
+                            print(data)
+                            mainPrice = float(data.get('ngnValue'))
+                            print(mainPrice)
+                            add = 600
+                            mainPrice = float(mainPrice)+add
+                            mPrice = price / mainPrice
+                            print(mPrice)
+                        else:
+                            return jsonify({'error': 'Unable to fetch exchange rate data'})
+                    
+                    # Create a dictionary to store the product information including the converted price
+                    converted_product = {
+                        'id': id,
+                        'email': email,
+                        'img': img,
+                        'scorelvl': scorelvl,
+                        'caption': caption,
+                        'colors': colors,
+                        'size': size,
+                        'category': category,
+                        'stock_quantity': stock_quantity,
+                        'timestamp': timestamp,
+                        'price': mPrice,  # Store the converted price in USD
+                        'currency': 'USD'  # Update the currency to USD
+                    }
+
+                    converted_products.append(converted_product)
+                    total_usd_price += mPrice
+
+                else:
+                    return jsonify({'error': f'Product with ID {product_id} not found'})
+
+            # Now, you can use the 'total_usd_price' variable for payment, and 'converted_products' for further processing
+            return jsonify({'message': 'Checkout successful', 'total_usd_price': total_usd_price, 'converted_products': converted_products})
+        else:
+            return jsonify({'message': 'Shopping cart is empty'})
+
+    except Exception as e:
+        return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
+
+
 
 @app.route('/deleteItemSeller/<id>/<email>', methods=['POST', 'GET'])
 def deleteItemSeller(id, email):
