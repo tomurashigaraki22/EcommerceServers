@@ -16,8 +16,8 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = 'emmanuelhudson355@gmail.com'
-app.config['MAIL_PASSWORD'] = 'pdlw wmnu leov yqyv'
+app.config['MAIL_USERNAME'] = 'Trollz.mallstore@gmail.com'
+app.config['MAIL_PASSWORD'] = 'zkhb hirb nmdc mbhz'
 mail = Mail(app)
 css = CurrencyConverter()
 
@@ -34,6 +34,27 @@ c.execute('CREATE TABLE IF NOT EXISTS shoppingcarts (id INTEGER PRIMARY KEY AUTO
 conn.close()
 
 import requests
+
+@app.route('/recoverPassword/<email>', methods=['POST', 'GET'])
+def recoverPassword(email):
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM auth WHERE email = ?', (email, ))
+        cs = c.fetchone()
+        if cs is not None:
+            password = cs[2]
+            print(password)
+            message = Message('Password Recovery', sender='Trollz.mallstore@gmail.com', recipients=[email])
+            message.body = f'Your account in Trollz Ecommerce has sent a request for password recovery \n Please delete this message as soon as you read it \n\n\n Your password is {password}, \n\n\n Thanks for using Trollz Ecommerce'  # Include the retrieved password here
+
+            # Send the email
+            mail.send(message)
+            return jsonify({'message': 'Check Email', 'status': 200})
+        else:
+            return jsonify({'message': 'Error In sending', 'status': 404})
+    except Exception as e:
+        return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
 
 
 @app.route('/checkout/<email>', methods=['POST', 'GET'])
@@ -100,14 +121,48 @@ def checkout(email):
                     total_usd_price += mPrice
 
                 else:
+                    conn.close()
                     return jsonify({'error': f'Product with ID {product_id} not found'})
+            conn.close()
+            # Assuming 'total_usd_price' and 'converted_products' are already defined
 
-            # Now, you can use the 'total_usd_price' variable for payment, and 'converted_products' for further processing
+# Create a message for successful checkout
+            messageBody = f'''
+            Dear {email},
+
+            We are thrilled to inform you that your recent purchase at Trollz Mall Store was successful! Thank you for choosing us for your shopping needs.
+
+            Here are the details of your order:
+
+            Order Total: ${total_usd_price:.2f}
+
+            Products:
+            {", ".join(product['caption'] for product in converted_products)}
+
+            Your satisfaction is our top priority, and we are working diligently to prepare and dispatch your order. You will receive a confirmation email with tracking information once your order has been shipped.
+
+            If you have any questions or need further assistance, feel free to reply to this email or contact our customer support team at +234 807 127 3078.
+
+            Thank you again for shopping with us. We appreciate your business!
+
+            Best Regards,
+            The Trollz Mall Store Team
+            '''
+
+            # Create a message object
+            message = Message('Checkout Successful', sender='Trollz.mallstore@gmail.com', recipients=[email])
+            message.body = messageBody
+
+
+            mail.send(message)
+
             return jsonify({'message': 'Checkout successful', 'total_usd_price': total_usd_price, 'converted_products': converted_products})
         else:
+            conn.close()
             return jsonify({'message': 'Shopping cart is empty'})
 
     except Exception as e:
+        conn.close()
         return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
 
 
@@ -405,6 +460,7 @@ def login():
 
 @app.route('/signup', methods=['POST'])
 def signup():
+    print('here')
     if request.method == 'POST':
         try:
             email = request.form.get('email')
@@ -430,12 +486,12 @@ def signup():
                     welcome_message = f"Welcome to Trollz Ecommerce, {email}!\n\n"\
                   "We are delighted to have you join our online shopping community, where you'll discover a world of exquisite products and exceptional service.\n\n"\
                   "At Trollz Ecommerce, we are committed to providing you with an unparalleled shopping experience. Whether you're seeking the latest fashion trends, innovative gadgets, or timeless classics, our platform offers a curated selection to meet your every need.\n\n"\
-                  "Our dedicated support team is here to assist you at every step of your journey. Should you have any questions or require assistance, please don't hesitate to reach out to us at emmanuelhudson355@gmail.com. We're available to address your inquiries and ensure your shopping experience is nothing short of outstanding.\n\n"\
+                  "Our dedicated support team is here to assist you at every step of your journey. Should you have any questions or require assistance, please don't hesitate to reach out to us at Trollz.mallstore@gmail.com .  We're available to address your inquiries and ensure your shopping experience is nothing short of outstanding.\n\n"\
                   "Thank you for choosing Trollz Ecommerce. We look forward to serving you and making your online shopping dreams a reality."
 
 
                     # Send the welcome email
-                    msg = Message('Welcome to XOX Ecommerce Site', sender='emmanuelhudson355@gmail.com', recipients=[email])
+                    msg = Message('Welcome to XOX Ecommerce Site', sender='Trollz.mallstore@gmail.com', recipients=[email])
                     msg.body = welcome_message
 
                     mail.send(msg)
@@ -450,4 +506,4 @@ def signup():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5432, use_reloader=True)
+    app.run(host='0.0.0.0', port=5442, use_reloader=True)
