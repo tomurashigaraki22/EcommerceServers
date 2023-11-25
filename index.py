@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, make_response
 import sqlite3
 import json
 from flask_socketio import SocketIO, emit
@@ -8,7 +8,6 @@ import jwt
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import os
-from currency_converter import CurrencyConverter
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'orenonawaerenjaeger'
@@ -19,7 +18,6 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = 'Trollz.mallstore@gmail.com'
 app.config['MAIL_PASSWORD'] = 'zkhb hirb nmdc mbhz'
 mail = Mail(app)
-css = CurrencyConverter()
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -34,6 +32,29 @@ c.execute('CREATE TABLE IF NOT EXISTS shoppingcarts (id INTEGER PRIMARY KEY AUTO
 conn.close()
 
 import requests
+
+@app.route('/items/<path:filename>')
+def serve_video(filename):
+    video_path = 'items'  # Replace with the actual path to your video files directory
+    full_path = os.path.join(video_path, filename)
+
+    # Check if the file exists
+    if not os.path.isfile(full_path):
+        return "Video not found", 404
+
+    # Determine the content type based on the file extension
+    if filename.endswith('.mp4'):
+        content_type = 'video/mp4'
+    else:
+        root_dir = os.path.dirname(os.path.abspath(__file__))
+        return send_from_directory(os.path.join(root_dir, 'items'), filename)
+
+    # Set the Content-Disposition header to display the file inline
+    response = make_response(send_from_directory(video_path, filename, mimetype=content_type))
+    response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
+
+    return response
+    
 
 @app.route('/recoverPassword/<email>', methods=['POST', 'GET'])
 def recoverPassword(email):
@@ -54,6 +75,39 @@ def recoverPassword(email):
         else:
             return jsonify({'message': 'Error In sending', 'status': 404})
     except Exception as e:
+        return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
+    
+@app.route('/getItem/<id>/<email>', methods=['POST', 'GET'])
+def getItem(id, email):
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM posts WHERE id = ?', (id, ))
+        cs = c.fetchone()
+        item_array = []
+        if cs is not None:
+            item_dict = {
+                    'id': cs[0],
+                    'email': cs[1],
+                    'img': cs[2],
+                    'score_lvl': cs[3],
+                    'caption': cs[4],
+                    'colors': cs[5],
+                    'size': cs[6],
+                    'category': cs[7],
+                    'stock_quantity': cs[8],
+                    'timestamp': cs[9],
+                    'price': cs[10],
+                    'currency': cs[11]
+                }
+            item_array.append(item_dict)
+            conn.close()
+            return jsonify({'message': item_array})
+        else:
+            conn.close()
+            return jsonify({'bad_message': 'nothing'})
+    except Exception as e:
+        conn.close()
         return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
 
 
@@ -230,14 +284,33 @@ def search(query):
     try:
         conn = sqlite3.connect('./ecDB.db')
         c = conn.cursor()
-        c.execute('SELECT * FROM posts WHERE email LIKE ? OR caption LIKE ?', (search_query, search_query))
+        c.execute('SELECT * FROM posts WHERE category LIKE ? OR caption LIKE ?', (search_query, search_query))
         cs = c.fetchall()
-        if cs is not None:
-            return jsonify({'status': 200, 'feedback': cs})
+        if cs:
+            # Creating a list of dictionaries where each dictionary represents an item
+            feedback_list = []
+            for row in cs:
+                item_dict = {
+                    'id': row[0],
+                    'email': row[1],
+                    'img': row[2],
+                    'score_lvl': row[3],
+                    'caption': row[4],
+                    'colors': row[5],
+                    'size': row[6],
+                    'category': row[7],
+                    'stock_quantity': row[8],
+                    'timestamp': row[9],
+                    'price': row[10],
+                    'currency': row[11]
+                }
+                feedback_list.append(item_dict)
+
+            return jsonify({'status': 200, 'feedback': feedback_list})
         else:
             return jsonify({'status': 404, 'feedback': 'No related posts found'})
     except Exception as e:
-        return jsonify({'Exception': str(e), 'Message':'Exception Found'})
+        return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
 
 @app.route('/getItems', methods=['POST', 'GET'])
 def getItems():
@@ -453,10 +526,23 @@ def login():
                 return jsonify({'message': 'Not a valid email address', 'status': 509})
 
         except Exception as e:
-            return jsonify({'message': 'Error. Db may be busy'})
+            return jsonify({'message': 'Error. Db may be busy', 'Exception': str(e)})
     else:
         return
     
+
+@app.route('/clearCart/<email>', methods=['POST', 'GET'])
+def clearCart(email):
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('UPDATE shoppingcarts SET products = NULL WHERE email = ?', (email,))
+        conn.commit()
+        conn.close()
+        return jsonify({'message': 'Cart cleared successfully', 'status': 200})
+    except Exception as e:
+        return jsonify({'message': 'Error while clearing the cart', 'exception': str(e), 'status': 500})
+
 
 @app.route('/signup', methods=['POST'])
 def signup():
