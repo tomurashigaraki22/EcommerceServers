@@ -421,7 +421,18 @@ def addToCart(id, email):
     except Exception as e:
         return jsonify({'message': 'Exception Found', 'exception': str(e), 'status': 409})
 
-
+@app.route('/getCartId/<email>', methods=['POST', 'GET'])
+def getCartId(email):
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('SELECT id FROM shoppingcarts WHERE email = ?', (email,))
+        cs = c.fetchone()
+        conn.close()
+        return jsonify({'m': cs})
+    except Exception as e:
+        conn.close()
+        return jsonify({'ex': str(e)})
 
 @app.route('/getCartItems/<email>', methods=['GET', 'POST'])
 def getCartItems(email):
