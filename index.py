@@ -241,7 +241,7 @@ def deleteItemSeller(id, email):
     except sqlite3.Error as e:
         return f"An error occurred: {str(e)}"  # Handle any potential errors
 
-@app.route('/getAllUsers', method=['POST', 'GET'])
+@app.route('/getAllUsers', methods=['POST', 'GET'])
 def getAllUsers():
     try:
         conn = sqlite3.connect('./ecDB.db')
