@@ -405,9 +405,9 @@ def addToCart(id, email):
             
             if cart:
                 # Update the existing cart by adding the product ID
-                product_ids = cart[1].split(', ') if cart[1] else []
+                product_ids = cart[1].split(',') if cart[1] else []
                 product_ids.append(str(id))
-                updated_cart = ', '.join(product_ids)
+                updated_cart = ','.join(product_ids)
                 c.execute('UPDATE shoppingcarts SET products = ? WHERE email = ?', (updated_cart, email))
             else:
                 # Create a new cart for the user
@@ -420,6 +420,7 @@ def addToCart(id, email):
             return jsonify({'message': 'No such product', 'status': 404})
     except Exception as e:
         return jsonify({'message': 'Exception Found', 'exception': str(e), 'status': 409})
+
 
 @app.route('/getCartId/<email>', methods=['POST', 'GET'])
 def getCartId(email):
