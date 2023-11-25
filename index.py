@@ -31,8 +31,6 @@ conn.commit()
 c.execute('CREATE TABLE IF NOT EXISTS shoppingcarts (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, products TEXT)')
 conn.close()
 
-import requests
-
 @app.route('/items/<path:filename>')
 def serve_video(filename):
     video_path = 'items'  # Replace with the actual path to your video files directory
