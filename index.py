@@ -241,6 +241,18 @@ def deleteItemSeller(id, email):
     except sqlite3.Error as e:
         return f"An error occurred: {str(e)}"  # Handle any potential errors
 
+@app.route('/getAllUsers', method=['POST', 'GET'])
+def getAllUsers():
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM auth')
+        cs = c.fetchall()
+        conn.close()
+        return jsonify({'Number of users': len(cs)})
+    except Exception as e:
+        conn.close()
+        return jsonify({'message': str(e)})
 
 
 @app.route('/deleteFromCart/<id>/<email>', methods=['POST', 'GET'])
