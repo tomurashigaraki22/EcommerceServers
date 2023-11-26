@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import os
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'orenonawaerenjaeger'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -53,6 +54,9 @@ def serve_video(filename):
 
     return response
     
+@app.route('/deleteAcct/<email>', methods=['GET', 'POST'])
+def deleteAcct(email):
+    return jsonify({'message': 'Account will be deleted shortly '+ email})
 
 @app.route('/recoverPassword/<email>', methods=['POST', 'GET'])
 def recoverPassword(email):
