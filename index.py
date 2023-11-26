@@ -407,10 +407,13 @@ def addToCart(id, email):
                 # Update the existing cart by adding the product ID
                 # Update the existing cart by adding the product ID
                 product_ids = cart[2].split(',') if cart[2] else []
-                product_ids.append(str(id))
-                updated_cart = ', '.join(product_ids)
-                print(updated_cart)
-                c.execute('UPDATE shoppingcarts SET products = ? WHERE email = ?', (updated_cart, email))
+                if str(id) in product_ids:
+                    return jsonify({'message': 'Item Already Exists'})
+                else:
+                    product_ids.append(str(id))
+                    updated_cart = ', '.join(product_ids)
+                    print(updated_cart)
+                    c.execute('UPDATE shoppingcarts SET products = ? WHERE email = ?', (updated_cart, email))
 
             else:
                 # Create a new cart for the user
