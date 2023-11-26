@@ -405,10 +405,13 @@ def addToCart(id, email):
             
             if cart:
                 # Update the existing cart by adding the product ID
-                product_ids = cart[1].split(',') if cart[1] else []
+                # Update the existing cart by adding the product ID
+                product_ids = cart[2].split(',') if cart[2] else []
                 product_ids.append(str(id))
-                updated_cart = ','.join(product_ids)
+                updated_cart = ', '.join(product_ids)
+                print(updated_cart)
                 c.execute('UPDATE shoppingcarts SET products = ? WHERE email = ?', (updated_cart, email))
+
             else:
                 # Create a new cart for the user
                 c.execute('INSERT INTO shoppingcarts (email, products) VALUES (?, ?)', (email, str(id)))
