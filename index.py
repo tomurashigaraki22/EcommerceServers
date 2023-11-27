@@ -567,6 +567,16 @@ def login():
 def clearCart(email):
     try:
         conn = sqlite3.connect('./ecDB.db')
+        cart = request.form.get('cart')
+        address = request.form.get('address')
+        message = f"Order Completed: {cart}"
+        msg = Message('Trollz Ecommerce', sender='trollz.mallzstore@gmail.com', recipients=[email])
+        msg.body = message
+        mail.send(msg)
+        message2 = f"New Order: {cart} \n Address: {address}"
+        msg2 = Message('New Order Placed', sender='trollz.mallzstore@gmail.com', recipients=['trollz.mallzstore@gmail.com'])
+        msg2.body = message2
+        mail.send(msg2)
         c = conn.cursor()
         c.execute('UPDATE shoppingcarts SET products = NULL WHERE email = ?', (email,))
         conn.commit()
