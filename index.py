@@ -553,6 +553,7 @@ def login():
                 if cs is not None:
                     return jsonify({'message': 'Login Successful', 'status': 200, 'token': jwt_token})
                 else:
+                    print('Status: 404')
                     return jsonify({'message': 'Incorrect email or Password', 'status': 404})
             else:
                 return jsonify({'message': 'Not a valid email address', 'status': 509})
@@ -630,8 +631,28 @@ def signup():
         except Exception as e:
             return jsonify({'message': 'Error. Db may be busy', 'exception': str(e)})
 
-
-
+@app.route('/changePassword/<email>', methods=['GET', 'POST'])
+def changePassword(email):
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        password = request.form.get('password')
+        changedPassword = request.form.get('changedPassword')
+        c.execute('SELECT * FROM auth WHERE email = ?', (email,))
+        cs = c.fetchone()
+        if cs is not None:
+            if cs[2] == password:
+                c.execute('UPDATE auth SET password = ? WHERE email = ?', (changedPassword, email))
+                conn.commit()
+                conn.close()
+                return jsonify({'message': 'Password changed successfully', 'status': 200})
+            else:
+                conn.close()
+                return jsonify({'message': 'Old Password is Wrong Please try again', 'status': 404})
+        else:
+            return jsonify({'message': 'No such email', 'status': 409})
+    except Exception as e:
+        return jsonify({'message': 'Error somewhere though', 'status': 509, 'Exception': str(e)})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5442, use_reloader=True)
