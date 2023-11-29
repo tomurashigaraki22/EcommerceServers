@@ -573,15 +573,21 @@ def login():
         try:
             email = request.form.get('email')
             password = request.form.get('password')
+            print('reach')
+            print(email)
             if '@gmail.com' in email:
+                print('mi')
                 conn = sqlite3.connect('./ecDB.db')
                 c = conn.cursor()
+                print('reach2')
                 c.execute('SELECT * FROM auth WHERE email = ? AND password = ?', (email, password))
                 cs = c.fetchone()
+                print('reach3')
                 payload = {
                     'email': email,
                     'password': password,
                 }
+                print('reach4')
                 jwt_token = jwt.encode(payload, app.secret_key, algorithm='HS256')
                 if cs is not None:
                     return jsonify({'message': 'Login Successful', 'status': 200, 'token': jwt_token})
