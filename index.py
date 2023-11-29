@@ -333,7 +333,7 @@ def getItems():
         email = request.form.get('email')
         conn = sqlite3.connect('./ecDB.db')
         c = conn.cursor()
-        c.execute('SELECT * FROM posts')
+        c.execute('SELECT * FROM posts ORDER BY id DESC LIMIT 10')
         cs = c.fetchall()
         post_list = []
         for row in cs:
