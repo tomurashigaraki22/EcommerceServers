@@ -326,6 +326,39 @@ def search(query):
     except Exception as e:
         return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
 
+@app.route('/getItems4', methods=['GET', 'POST'])
+def getItems4():
+    print('Fins')
+    try:
+        email = request.form.get('email')
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM posts ORDER BY id DESC LIMIT 4')
+        cs = c.fetchall()
+        post_list = []
+        for row in cs:
+            posts = {
+                'id': row[0],
+                'email': row[1],
+                'img': row[2],
+                'scorelvl': row[3],
+                'caption': row[4],
+                'colors': row[5],
+                'size': row[6],
+                'category': row[7],
+                'stock_quantity': row[8],
+                'timestamp': row[9],
+                'price': row[10],
+                'currency': row[11]
+            }
+            post_list.append(posts)
+        if post_list:
+            return jsonify({'message': 'Gotten', 'posts': post_list, 'status': 200})
+        else:
+            return jsonify({'message': 'No posts found', 'status': 404})
+    except Exception as e:
+        return jsonify({'Message': 'Exception Found', 'Exception': str(e)})
+
 @app.route('/getItems', methods=['POST', 'GET'])
 def getItems():
     print('Fins')
