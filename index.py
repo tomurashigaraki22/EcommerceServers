@@ -322,7 +322,7 @@ def search(query):
 
             return jsonify({'status': 200, 'feedback': feedback_list})
         else:
-            return jsonify({'status': 404, 'feedback': 'No related posts found'})
+            return jsonify({'status': 404, 'feedback': []})
     except Exception as e:
         return jsonify({'Exception': str(e), 'Message': 'Exception Found'})
 
