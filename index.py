@@ -42,6 +42,8 @@ conn.commit()
 def adminlogin():
     try:
         email = request.form.get('email')
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
         password = request.form.get('password')
         if not all([email, password]):
             return jsonify({'message': 'Invalid input data', 'status': 400})
