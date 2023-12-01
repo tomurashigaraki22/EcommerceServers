@@ -58,6 +58,19 @@ def payondelivery():
 
         trackingnumber = generate_random_string()
 
+        message = f"Your order has been completed successfully. \n Your address is {address} \n The items you ordered are {items} \n The amount to be paid plus fee is {amount+10000}"
+        msg3 = Message('Pending Order', sender='trollz.mallstore@gmail.com', recipients=[email])
+        msg3.body = message
+
+        mail.send(msg3)
+
+        message = f"New Order Placed (On delivery). \n The address is {address} \n The items he/she ordered are {items} \n The amount to be paid plus fee is {amount+10000}"
+        msg3 = Message('Pending Order', sender='trollz.mallstore@gmail.com', recipients=['trollz.mallstore@gmail.com'])
+        msg3.body = message
+
+        mail.send(msg3)
+
+
         c.execute('INSERT INTO orderwdp (email, address, trackingnumber, amount, items) VALUES (?, ?, ?, ?, ?)',
                   (email, address, trackingnumber, amount, items))
         conn.commit()
@@ -663,11 +676,11 @@ def clearCart(email):
         cart = request.form.get('cart')
         address = request.form.get('address')
         message = f"Order Completed: {cart}"
-        msg = Message('Trollz Ecommerce', sender='trollz.mallzstore@gmail.com', recipients=[email])
+        msg = Message('Trollz Ecommerce', sender='trollz.mallstore@gmail.com', recipients=[email])
         msg.body = message
         mail.send(msg)
         message2 = f"New Order: {cart} \n Address: {address}"
-        msg2 = Message('New Order Placed', sender='trollz.mallzstore@gmail.com', recipients=['trollz.mallzstore@gmail.com'])
+        msg2 = Message('New Order Placed', sender='trollz.mallstore@gmail.com', recipients=['trollz.mallstore@gmail.com'])
         msg2.body = message2
         mail.send(msg2)
         c = conn.cursor()
