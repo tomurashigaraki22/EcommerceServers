@@ -58,13 +58,13 @@ def payondelivery():
 
         trackingnumber = generate_random_string()
 
-        message = f"Your order has been completed successfully. \n Your address is {address} \n The items you ordered are {items} \n The amount to be paid plus fee is {amount+10000}"
+        message = f"Your order has been completed successfully. \n Your address is {address} \n The items you ordered are {items} \n The amount to be paid plus fee is {amount}"
         msg3 = Message('Pending Order', sender='trollz.mallstore@gmail.com', recipients=[email])
         msg3.body = message
 
         mail.send(msg3)
 
-        message = f"New Order Placed (On delivery). \n The address is {address} \n The items he/she ordered are {items} \n The amount to be paid plus fee is {amount+10000}"
+        message = f"New Order Placed (On delivery). \n The address is {address} \n The items he/she ordered are {items} \n The amount to be paid plus fee is {int(amount) + 10000}"
         msg3 = Message('Pending Order', sender='trollz.mallstore@gmail.com', recipients=['trollz.mallstore@gmail.com'])
         msg3.body = message
 
