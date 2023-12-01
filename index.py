@@ -50,7 +50,8 @@ def adminlogin():
         
         c.execute('SELECT * FROM authadmin WHERE email = ?', (email,))
         cs = c.fetchone()
-        if cs[2] == password:
+
+        if cs and len(cs) > 2 and cs[2] == password:
             payload = {
                     'email': email,
                     'password': password,
@@ -62,6 +63,7 @@ def adminlogin():
             return jsonify({'message': 'Login Unsuccessful', 'status': 404})
     except Exception as e:
         return jsonify({'message': 'Internal Server Error', 'status': 500, 'Exception': str(e)})
+
 
 
 
