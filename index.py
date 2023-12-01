@@ -26,6 +26,8 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 conn = sqlite3.connect('./ecDB.db')
 c = conn.cursor()
+c.execute('CREATE TABLE IF NOT EXISTS authadmin (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, password TEXT)')
+conn.commit()
 c.execute('CREATE TABLE IF NOT EXISTS auth (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, password TEXT)')
 print('Table Made')
 conn.commit()
@@ -35,7 +37,29 @@ c.execute('CREATE TABLE IF NOT EXISTS shoppingcarts (id INTEGER PRIMARY KEY AUTO
 conn.commit()
 c.execute('CREATE TABLE IF NOT EXISTS orderwdp (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, address JSON, trackingnumber TEXT, amount TEXT, items JSON)')
 conn.commit()
-conn.close()
+
+@app.route('/adminlogin', methods=['POST', 'GET'])
+def adminlogin():
+    try:
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if not all([email, password]):
+            return jsonify({'message': 'Invalid input data', 'status': 400})
+        
+        c.execute('SELECT * FROM authadmin WHERE email = ?', (email,))
+        cs = c.fetchone()
+        if cs[2] == password:
+            payload = {
+                    'email': email,
+                    'password': password,
+                }
+            print('reach4')
+            jwt_token = jwt.encode(payload, app.secret_key, algorithm='HS256')
+            return jsonify({'message': 'Successful', 'status': 200, 'token': jwt_token})
+        else:
+            return jsonify({'message': 'Login Unsuccessful', 'status': 404})
+    except Exception as e:
+        return jsonify({'message': 'Internal Server Error', 'status': 500, 'Exception': str(e)})
 
 
 
