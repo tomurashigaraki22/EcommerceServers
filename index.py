@@ -5,6 +5,8 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import datetime
 import jwt
+import random
+import string
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import os
@@ -30,7 +32,58 @@ conn.commit()
 c.execute('CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, img TEXT, scorelvl INTEGER, caption TEXT, colors JSON, size JSON, category TEXT, stock_quantity INTEGER)')
 conn.commit()
 c.execute('CREATE TABLE IF NOT EXISTS shoppingcarts (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, products TEXT)')
+conn.commit()
+c.execute('CREATE TABLE IF NOT EXISTS orderwdp (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, address JSON, trackingnumber TEXT, amount TEXT, items JSON)')
+conn.commit()
 conn.close()
+
+
+
+
+@app.route('/payondelivery', methods=['POST'])
+def payondelivery():
+    try:
+        conn = sqlite3.connect('./ecDB.db')
+        c = conn.cursor()
+
+        # Assuming items is a list of items; adjust as needed
+        items = request.form.get('items')
+        address = request.form.get('address')
+        email = request.form.get('email')
+        amount = request.form.get('amount')
+
+        # Validate input data
+        if not all([items, address, email, amount]):
+            return jsonify({'message': 'Invalid input data', 'status': 400})
+
+        trackingnumber = generate_random_string()
+
+        c.execute('INSERT INTO orderwdp (email, address, trackingnumber, amount, items) VALUES (?, ?, ?, ?, ?)',
+                  (email, address, trackingnumber, amount, items))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'Order Successful', 'trackingid': trackingnumber, 'amount': amount, 'address': address, 'status': 200})
+
+    except Exception as e:
+        # Log the exception for debugging purposes
+        print(f'Exception in payondelivery route: {str(e)}')
+
+        return jsonify({'message': 'Internal Server Error', 'status': 500})
+
+def generate_random_string():
+    letters = string.ascii_letters
+    numbers = string.digits
+
+    random_letters = ''.join(random.choice(letters) for _ in range(8))
+    random_numbers = ''.join(random.choice(numbers) for _ in range(16))
+
+    random_string = random_letters + random_numbers
+
+    # If you want to shuffle the characters in the final string
+    random_string = ''.join(random.sample(random_string, len(random_string)))
+
+    return random_string
 
 @app.route('/items/<path:filename>')
 def serve_video(filename):
