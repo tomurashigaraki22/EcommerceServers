@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory, make_response, s
 import sqlite3
 import shutil
 import json
+from git import Repo
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import datetime
@@ -852,6 +853,27 @@ def downloaditems(password):
             return jsonify({'Message': 'Wrong Password'})
     except Exception as e:
         return jsonify({'message': 'Error while downloading the items folder', 'status': 500, 'Exception': str(e)})
+
+@app.route('/push-to-github', methods=['POST'])
+def push_to_github():
+    try:
+        # Replace '/path/to/your/repo' with the actual path to your Git repository
+        repo_path = './'
+        repo = Repo(repo_path)
+
+        # Pull changes to ensure the local repository is up-to-date
+        repo.remotes.origin.pull()
+
+        # Add, commit, and push changes
+        repo.git.add('.')
+        repo.git.commit('-m', 'Automated commit')
+        repo.remotes.origin.push()
+
+        return jsonify({'message': 'Changes pushed to GitHub', 'status': 200})
+
+    except Exception as e:
+        return jsonify({'message': 'Error pushing to GitHub', 'status': 500, 'exception': str(e)})
+
 
 
 if __name__ == '__main__':
