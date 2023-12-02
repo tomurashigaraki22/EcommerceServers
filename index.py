@@ -861,13 +861,15 @@ def push_to_github():
         repo_path = './'
         repo = Repo(repo_path)
 
+        # Add the remote 'origin' with the GitHub repository URL
+        # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
+
         # Pull changes to ensure the local repository is up-to-date
-        repo.remotes.origin.pull()
 
         # Add, commit, and push changes
         repo.git.add('.')
         repo.git.commit('-m', 'Automated commit')
-        repo.remotes.origin.push()
+        repo.git.push('origin', 'master')  # Replace 'main' with your branch name
 
         return jsonify({'message': 'Changes pushed to GitHub', 'status': 200})
 
