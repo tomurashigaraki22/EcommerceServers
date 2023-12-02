@@ -6,6 +6,7 @@ from git import Repo, GitCommandError
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
+import subprocess
 import datetime
 import jwt
 import random
@@ -857,35 +858,33 @@ def downloaditems(password):
     except Exception as e:
         return jsonify({'message': 'Error while downloading the items folder', 'status': 500, 'Exception': str(e)})
 
-@app.route('/push-to-github', methods=['GET'])
+@app.route('/push_to_github', methods=['GET'])
 def push_to_github():
     try:
         # Replace '/path/to/your/repo' with the actual path to your Git repository
         repo_path = './'
-        repo = Repo(repo_path)
+        os.chdir(repo_path)
 
         # Hardcode the GitHub access token
         access_token = os.getenv('GITHUB_ACCESS_TOKEN')
         print('Do you want this')
         print('I do')
 
-        # Add the remote 'origin' with the GitHub repository URL and access token
-        # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
-        if 'origin' in [remote.name for remote in repo.remotes]:
+        # Check if 'origin' remote already exists
+        try:
+            subprocess.run(['git', 'remote', 'rm', 'origin'], check=True)
+        except subprocess.CalledProcessError:
             # If 'origin' exists, remove it
-            repo.git.remote('rm', 'origin')
-            
-        repo.git.remote('add', 'origin', f"https://tomurashigaraki22:{access_token}@github.com/tomurashigaraki22/EcommerceServer.git")  # 
- 
+            subprocess.run(['git', 'remote', 'add', 'origin', f"https://tomurashigaraki22:{access_token}@github.com/tomurashigaraki22/EcommerceServer.git"])
 
         # Add, commit, and push changes
-        repo.git.add('.')
-        repo.git.commit('-m', 'Automateds commit')
-        repo.git.push('origin', 'master')  # Replace 'main' with your branch name
+        subprocess.run(['git', 'add', '.'])
+        subprocess.run(['git', 'commit', '-m', 'Automated commit'])
+        subprocess.run(['git', 'push', 'origin', 'master'])  # Replace 'main' with your branch name
 
         return jsonify({'message': 'Changes pushed to GitHub', 'status': 200})
 
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         return jsonify({'message': 'Error pushing to GitHub', 'status': 500, 'exception': str(e)})
 
 
