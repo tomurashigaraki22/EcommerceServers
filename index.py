@@ -869,7 +869,7 @@ def push_to_github():
 
 
         # Add, commit, and push changes
-        repo.git.add('.')
+        repo.git.add('--all')
         repo.git.commit('-m', 'Automated commit')
         repo.git.push('origin', 'master')  # Replace 'main' with your branch name
 
