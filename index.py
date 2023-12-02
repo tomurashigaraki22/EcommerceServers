@@ -866,7 +866,6 @@ def push_to_github():
 
         # Add the remote 'origin' with the GitHub repository URL and access token
         # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
-        repo.git.config('--local', 'credential.https://github.com/tomurashigaraki22/EcommerceServer/.username', access_token)
 
 
         # Add, commit, and push changes
