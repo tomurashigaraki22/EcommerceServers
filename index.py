@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_from_directory, make_response
+from flask import Flask, jsonify, request, send_from_directory, make_response, send_file
 import sqlite3
 import json
 from flask_socketio import SocketIO, emit
@@ -803,6 +803,29 @@ def editItemCate(id, email, cates):
             return jsonify({'Message': 'No such post', 'status': 404})
     except Exception as e:
         return jsonify({'Exception': str(e)})
+
+
+
+@app.route('/downloadDb/<password>', methods=['GET'])
+def download_db(password):
+    try:
+        # Specify the path to your database file
+        db_path = './ecDB.db'
+        if password == 'Gpdwithus22':
+        
+        # Set up the response headers
+            headers = {
+                'Content-Disposition': 'attachment; filename=ecDB.db',
+                'Content-Type': 'application/octet-stream',
+            }
+
+            # Send the file as a response
+            return send_file(db_path, as_attachment=True, headers=headers)
+        else:
+            return jsonify({'Message': 'Wrong Password'})
+
+    except Exception as e:
+        return jsonify({'message': 'Error while downloading the database file', 'status': 500, 'Exception': str(e)})
 
 
 if __name__ == '__main__':
