@@ -868,7 +868,7 @@ def push_to_github():
         # Hardcode the GitHub access token
         access_token = os.getenv('GITHUB_ACCESS_TOKEN')
         print('Do you want this')
-        print('I do')
+        print('I dosss')
 
         # Check if 'origin' remote already exists
         try:
