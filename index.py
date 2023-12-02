@@ -867,6 +867,7 @@ def push_to_github():
         # Hardcode the GitHub access token
         access_token = os.getenv('GITHUB_ACCESS_TOKEN')
         print('Do you want this')
+        print('I do')
 
         # Add the remote 'origin' with the GitHub repository URL and access token
         # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
@@ -880,7 +881,7 @@ def push_to_github():
 
         # Add, commit, and push changes
         repo.git.add('.')
-        repo.git.commit('-m', 'Automated commit')
+        repo.git.commit('-m', 'Automateds commit')
         repo.git.push('origin', 'master')  # Replace 'main' with your branch name
 
         return jsonify({'message': 'Changes pushed to GitHub', 'status': 200})
