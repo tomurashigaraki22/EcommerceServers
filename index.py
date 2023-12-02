@@ -860,7 +860,8 @@ def push_to_github():
         # Replace '/path/to/your/repo' with the actual path to your Git repository
         repo_path = './'
         repo = Repo(repo_path)
-
+        repo.git.config('user.email', 'emmanuelhudson355@gmail.com')
+        repo.git.config('user.name', 'tomurashigaraki22')
         # Hardcode the GitHub access token
         access_token = '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'
 
