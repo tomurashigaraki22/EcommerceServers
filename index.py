@@ -3,6 +3,7 @@ import sqlite3
 import shutil
 import json
 from git import Repo, GitCommandError
+from dotenv import load_dotenv
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import datetime
@@ -23,6 +24,8 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = 'Trollz.mallstore@gmail.com'
 app.config['MAIL_PASSWORD'] = 'zkhb hirb nmdc mbhz'
 mail = Mail(app)
+
+load_dotenv()
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -862,16 +865,16 @@ def push_to_github():
         repo = Repo(repo_path)
 
         # Hardcode the GitHub access token
-        access_token = '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'
+        access_token = os.getenv('GITHUB_ACCESS_TOKEN')
 
         # Add the remote 'origin' with the GitHub repository URL and access token
         # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
         try:
             repo.git.remote('rm', 'origin')
         except GitCommandError:
-            repo.git.remote('add', 'origin', 'https://tomurashigaraki22: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@github.com/tomurashigaraki22/EcommerceServer.git')  # 
+            repo.git.remote('add', 'origin', f"https://tomurashigaraki22:{access_token}@github.com/tomurashigaraki22/EcommerceServer.git")  # 
         # Add the new origin with the URL that includes the access token
-        repo.git.remote('add', 'origin', 'https://tomurashigaraki22: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@github.com/tomurashigaraki22/EcommerceServer.git')  # 
+        repo.git.remote('add', 'origin', f"https://tomurashigaraki22:{access_token}@github.com/tomurashigaraki22/EcommerceServer.git")  # 
  
 
         # Add, commit, and push changes
