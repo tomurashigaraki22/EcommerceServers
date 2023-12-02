@@ -854,7 +854,7 @@ def downloaditems(password):
     except Exception as e:
         return jsonify({'message': 'Error while downloading the items folder', 'status': 500, 'Exception': str(e)})
 
-@app.route('/push-to-github', methods=['POST'])
+@app.route('/push-to-github', methods=['GET'])
 def push_to_github():
     try:
         # Replace '/path/to/your/repo' with the actual path to your Git repository
