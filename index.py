@@ -867,6 +867,10 @@ def push_to_github():
 
         # Add the remote 'origin' with the GitHub repository URL and access token
         # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
+        repo.git.remote('remove', 'origin')
+
+        # Add the new origin with the URL that includes the access token
+        repo.git.remote('add', 'origin', 'https://tomurashigaraki22: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@github.com/tomurashigaraki22/EcommerceServer.git')
 
 
         # Add, commit, and push changes
