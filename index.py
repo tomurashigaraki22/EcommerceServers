@@ -861,10 +861,13 @@ def push_to_github():
         repo_path = './'
         repo = Repo(repo_path)
 
-        # Add the remote 'origin' with the GitHub repository URL
-        # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
+        # Hardcode the GitHub access token
+        access_token = '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'
 
-        # Pull changes to ensure the local repository is up-to-date
+        # Add the remote 'origin' with the GitHub repository URL and access token
+        # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
+        repo.git.config('--local', 'credential.https://github.com/tomurashigaraki22/EcommerceServer/.username', access_token)
+
 
         # Add, commit, and push changes
         repo.git.add('.')
@@ -875,6 +878,7 @@ def push_to_github():
 
     except Exception as e:
         return jsonify({'message': 'Error pushing to GitHub', 'status': 500, 'exception': str(e)})
+
 
 
 
