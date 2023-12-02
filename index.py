@@ -787,15 +787,15 @@ def changePassword(email):
     except Exception as e:
         return jsonify({'message': 'Error somewhere though', 'status': 509, 'Exception': str(e)})
 
-@app.route('/editItemCate/<id>/<email>/<cate>', methods=['GET', 'POST'])
-def editItemCate(id, email, cate):
+@app.route('/editItemCate/<id>/<email>/<catse>', methods=['GET', 'POST'])
+def editItemCate(id, email, cates):
     try:
         conn = sqlite3.connect('./ecDB.db')
         c = conn.cursor()
         c.execute('SELECT * FROM posts WHERE id = ? AND email = ?', (id, email))
         cs = c.fetchone()
         if cs is not None:
-            c.execute('UPDATE posts SET category = ? WHERE email = ? AND id = ?', (cate, email, id))
+            c.execute('UPDATE posts SET category = ? WHERE email = ? AND id = ?', (cates, email, id))
             conn.commit()
             conn.close()
             return jsonify({'Message': 'Successful Change', 'status': 200})
