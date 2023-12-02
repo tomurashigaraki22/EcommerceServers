@@ -866,6 +866,7 @@ def push_to_github():
 
         # Hardcode the GitHub access token
         access_token = os.getenv('GITHUB_ACCESS_TOKEN')
+        print('Do you want this')
 
         # Add the remote 'origin' with the GitHub repository URL and access token
         # Replace <GitHub_Repository_URL> with the actual URL of your GitHub repository
