@@ -820,7 +820,7 @@ def download_db(password):
             }
 
             # Send the file as a response
-            return send_file(db_path, as_attachment=True, headers=headers)
+            return send_file(db_path, as_attachment=True)
         else:
             return jsonify({'Message': 'Wrong Password'})
 
