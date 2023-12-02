@@ -869,10 +869,10 @@ def push_to_github():
         try:
             repo.git.remote('rm', 'origin')
         except GitCommandError:
-            pass  # 
+            repo.git.remote('add', 'origin', 'https://tomurashigaraki22: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@github.com/tomurashigaraki22/EcommerceServer.git')  # 
         # Add the new origin with the URL that includes the access token
-        repo.git.remote('add', 'origin', 'https://tomurashigaraki22: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@github.com/tomurashigaraki22/EcommerceServer.git')
-
+        repo.git.remote('add', 'origin', 'https://tomurashigaraki22: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@github.com/tomurashigaraki22/EcommerceServer.git')  # 
+ 
 
         # Add, commit, and push changes
         repo.git.add('.')
